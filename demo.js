@@ -54,8 +54,8 @@ var map = mapStuff.map;
 var layerControl = mapStuff.layerControl;
 
 // load data (u, v grids) from somewhere (e.g. https://github.com/danwild/wind-js-server)
-// $.getJSON("./wind-gbr.json", function (data) {
-$.getJSON("wind-gbr.json", function (data) {
+$.getJSON("./wind-gbr.json", function (data) {
+  // $.getJSON("wind-gbr.json", function (data) {
   var velocityLayer = L.velocityLayer({
     displayValues: true,
     displayOptions: {
@@ -71,8 +71,8 @@ $.getJSON("wind-gbr.json", function (data) {
   layerControl.addOverlay(velocityLayer, "Wind - Great Barrier Reef");
 });
 
-// $.getJSON("./water-gbr.json", function (data) {
-$.getJSON("water-gbr.json", function (data) {
+$.getJSON("./water-gbr.json", function (data) {
+  // $.getJSON("water-gbr.json", function (data) {
   var velocityLayer = L.velocityLayer({
     displayValues: true,
     displayOptions: {
@@ -88,8 +88,8 @@ $.getJSON("water-gbr.json", function (data) {
   layerControl.addOverlay(velocityLayer, "Ocean Current - Great Barrier Reef");
 });
 
-// $.getJSON("./wind-global.json", function (data) {
-$.getJSON("wind-global.json", function (data) {
+$.getJSON("./wind-global.json", function (data) {
+  // $.getJSON("wind-global.json", function (data) {
   var velocityLayer = L.velocityLayer({
     displayValues: true,
     displayOptions: {
@@ -104,8 +104,8 @@ $.getJSON("wind-global.json", function (data) {
   layerControl.addOverlay(velocityLayer, "Wind - Global");
 });
 
-// $.getJSON("./hampton.json", function (data) {
-$.getJSON("hampton.json", function (data) {
+$.getJSON("./hampton.json", function (data) {
+  // $.getJSON("hampton.json", function (data) {
   var velocityLayer = L.velocityLayer({
     displayValues: true,
     displayOptions: {
@@ -123,8 +123,8 @@ $.getJSON("hampton.json", function (data) {
   layerControl.addOverlay(velocityLayer, "HarbarCenter-Hampton, VA");
 });
 
-// $.getJSON("./retreat_center.json", function (data) {
-$.getJSON("retreat_center.json", function (data) {
+$.getJSON("./retreat_center.json", function (data) {
+  // $.getJSON("retreat_center.json", function (data) {
   var velocityLayer = L.velocityLayer({
     displayValues: true,
     displayOptions: {
@@ -142,8 +142,8 @@ $.getJSON("retreat_center.json", function (data) {
   layerControl.addOverlay(velocityLayer, "RetreatCenter-Hampton, VA");
 });
 
-// $.getJSON("./leatest.json", function (data) {
-$.getJSON("leatest.json", function (data) {
+$.getJSON("./leatest.json", function (data) {
+  // $.getJSON("leatest.json", function (data) {
   var velocityLayer = L.velocityLayer({
     displayValues: true,
     displayOptions: {
