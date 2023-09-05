@@ -18,7 +18,7 @@ function initDemoMap() {
         "NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community",
     }
   );
-
+  // MetroWeather用Map
   var Metro_OSM = L.tileLayer(
     // "https://tile.metroweather.net/hot/{z}/{x}/{y}.png",
     "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png",
