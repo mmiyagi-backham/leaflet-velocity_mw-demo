@@ -19,9 +19,18 @@ function initDemoMap() {
     }
   );
 
+  var Metro_OSM = L.tileLayer(
+    // "https://tile.metroweather.net/hot/{z}/{x}/{y}.png",
+    "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png",
+    {
+      attribution: "",
+    }
+  );
+
   var baseLayers = {
     Satellite: Esri_WorldImagery,
     "Grey Canvas": Esri_DarkGreyCanvas,
+    OSM: Metro_OSM,
   };
 
   var map = L.map("map", {
