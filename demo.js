@@ -20,10 +20,10 @@ function initDemoMap() {
   );
   // MetroWeather用Map
   var Metro_OSM = L.tileLayer(
-    // "https://tile.metroweather.net/hot/{z}/{x}/{y}.png",
-    "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png",
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
-      attribution: "",
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }
   );
 
