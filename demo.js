@@ -118,9 +118,12 @@ $.getJSON("hampton.json", function (data) {
     maxVelocity: 28,
     velocityScale: 0.001,
     opacity: 0.1, //透過率(1が最大)
+    showCardinal: true,
   });
-
+  console.log(" - velocityLayer hampton", velocityLayer);
   layerControl.addOverlay(velocityLayer, "HarbarCenter-Hampton, VA");
+  // 初期表示時から風を表示する。
+  velocityLayer.onAdd(map);
 });
 
 // $.getJSON("./retreat_center.json", function (data) {
