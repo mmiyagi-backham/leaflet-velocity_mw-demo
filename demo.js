@@ -27,18 +27,31 @@ function initDemoMap() {
     }
   );
 
+  var littleton = L.marker([39.61, -105.02]).bindPopup(
+      "This is Littleton, CO."
+    ),
+    denver = L.marker([39.74, -104.99]).bindPopup("This is Denver, CO."),
+    aurora = L.marker([39.73, -104.8]).bindPopup("This is Aurora, CO."),
+    golden = L.marker([39.77, -105.23]).bindPopup("This is Golden, CO.");
+
+  var cities = L.layerGroup([littleton, denver, aurora, golden]);
+
   var baseLayers = {
     Satellite: Esri_WorldImagery,
     "Grey Canvas": Esri_DarkGreyCanvas,
     OSM: Metro_OSM,
   };
+  var overlayMaps = {
+    Cities: cities,
+  };
 
   var map = L.map("map", {
-    layers: [Esri_WorldImagery],
+    layers: [Esri_WorldImagery, cities],
     zoomControl: false, // デフォルト表示のズーム：非表示
   });
 
-  var layerControl = L.control.layers(baseLayers);
+  // 第一引数:baseLayers, 第二引数:overlayMaps
+  var layerControl = L.control.layers(baseLayers, overlayMaps);
   console.log("- layerControl", layerControl, "- map", map);
   layerControl.addTo(map);
   map.setView([37, -76], 10);
