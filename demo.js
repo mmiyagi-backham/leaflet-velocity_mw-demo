@@ -1,4 +1,4 @@
-function initDemoMap() {
+async function initDemoMap() {
   var Esri_WorldImagery = L.tileLayer(
     "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     {
@@ -27,6 +27,8 @@ function initDemoMap() {
     }
   );
 
+  /* overlayMaps **/
+  // marker
   var littleton = L.marker([39.61, -105.02]).bindPopup(
       "This is Littleton, CO."
     ),
@@ -36,17 +38,54 @@ function initDemoMap() {
 
   var cities = L.layerGroup([littleton, denver, aurora, golden]);
 
+  // wind
+  var littleton = L.marker([39.61, -105.02]).bindPopup(
+      "This is Littleton, CO."
+    ),
+    denver = L.marker([39.74, -104.99]).bindPopup("This is Denver, CO."),
+    aurora = L.marker([39.73, -104.8]).bindPopup("This is Aurora, CO."),
+    golden = L.marker([39.77, -105.23]).bindPopup("This is Golden, CO.");
+
+  var velocityLayer;
+  await $.getJSON("hampton.json", function (data) {
+    velocityLayer = L.velocityLayer({
+      displayValues: true,
+      displayOptions: {
+        velocityType: "Global Wind",
+        position: "bottomleft",
+        emptyString: "No wind data",
+      },
+      data: data,
+      minVelocity: 5,
+      maxVelocity: 28,
+      velocityScale: 0.001,
+      opacity: 0.1, //透過率(1が最大)
+      showCardinal: true,
+    });
+    console.log(" - velocityLayer hampton", velocityLayer);
+    // layerControl.addOverlay(velocityLayer, "HarbarCenter-Hampton, VA");
+    // 初期表示時から風を表示する。
+  });
+
+  if (velocityLayer) {
+    // TODO 風が表示できているか確認する。
+    console.log(" - velocityLayer", velocityLayer);
+    var wind = L.layerGroup([velocityLayer]);
+  }
+
   var baseLayers = {
     Satellite: Esri_WorldImagery,
     "Grey Canvas": Esri_DarkGreyCanvas,
     OSM: Metro_OSM,
   };
+
   var overlayMaps = {
     Cities: cities,
+    Wind: wind,
   };
 
   var map = L.map("map", {
-    layers: [Esri_WorldImagery, cities],
+    layers: [Esri_WorldImagery, cities, wind], // デフォルトチェックするレイヤー
     zoomControl: false, // デフォルト表示のズーム：非表示
   });
 
@@ -136,7 +175,7 @@ $.getJSON("hampton.json", function (data) {
   console.log(" - velocityLayer hampton", velocityLayer);
   layerControl.addOverlay(velocityLayer, "HarbarCenter-Hampton, VA");
   // 初期表示時から風を表示する。
-  velocityLayer.onAdd(map);
+  // velocityLayer.onAdd(map);
 });
 
 // $.getJSON("./retreat_center.json", function (data) {
