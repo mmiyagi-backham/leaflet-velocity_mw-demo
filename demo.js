@@ -28,25 +28,112 @@ async function initDemoMap() {
   );
 
   /* overlayMaps **/
-  // marker
-  var littleton = L.marker([39.61, -105.02]).bindPopup(
-      "This is Littleton, CO."
-    ),
-    denver = L.marker([39.74, -104.99]).bindPopup("This is Denver, CO."),
-    aurora = L.marker([39.73, -104.8]).bindPopup("This is Aurora, CO."),
-    golden = L.marker([39.77, -105.23]).bindPopup("This is Golden, CO.");
+  let hcHamptonLayer = await getHcHamptonLayer();
+  var windLayerGroup = L.layerGroup([hcHamptonLayer]);
+  const hcHamptonLayerName = "HarbarCenter-Hampton, VA";
 
-  var cities = L.layerGroup([littleton, denver, aurora, golden]);
+  var baseLayers = {
+    Satellite: Esri_WorldImagery,
+    "Grey Canvas": Esri_DarkGreyCanvas,
+    OSM: Metro_OSM,
+  };
 
-  // wind
-  var littleton = L.marker([39.61, -105.02]).bindPopup(
-      "This is Littleton, CO."
-    ),
-    denver = L.marker([39.74, -104.99]).bindPopup("This is Denver, CO."),
-    aurora = L.marker([39.73, -104.8]).bindPopup("This is Aurora, CO."),
-    golden = L.marker([39.77, -105.23]).bindPopup("This is Golden, CO.");
+  var map = L.map("map", {
+    layers: [Esri_WorldImagery, windLayerGroup], // デフォルトチェックするレイヤー
+    zoomControl: false, // デフォルト表示のズーム：非表示
+  });
 
-  var velocityLayer;
+  // 第一引数:baseLayers, 第二引数:overlayMaps
+  var layerControl = L.control.layers(baseLayers);
+  console.log("- layerControl", layerControl, "- map", map);
+  layerControl.addTo(map);
+  // map.setView([37, -76], 10); // 提供時の座標
+  map.setView([37, -76.35], 11); // 改修時の座標調整
+  L.control.zoom({ position: "topright" }).addTo(map);
+
+  // レイヤーの追加
+  let windGbrLayer = await getWindGbrLayer();
+  layerControl.addOverlay(windGbrLayer, "Wind - Great Barrier Reef");
+  let waterGbrLayer = await getWaterGbrLayer();
+  layerControl.addOverlay(waterGbrLayer, "Ocean Current - Great Barrier Reef");
+  let rcHamptonLayer = await getRcHamptonLayer();
+  layerControl.addOverlay(rcHamptonLayer, "RetreatCenter-Hampton, VA");
+  let windGlobalLayer = await getWindGlobalLayer();
+  layerControl.addOverlay(windGlobalLayer, "Wind - Global");
+  layerControl.addOverlay(hcHamptonLayer, hcHamptonLayerName);
+  let leatestLayer = await getLeatestLayer();
+  layerControl.addOverlay(leatestLayer, "Hampton-AD4, VA");
+
+  return {
+    map: map,
+    layerControl: layerControl,
+  };
+}
+
+// demo map
+var mapStuff = initDemoMap();
+var map = mapStuff.map;
+var layerControl = mapStuff.layerControl;
+
+// Wind - Great Barrier Reef
+async function getWindGbrLayer() {
+  let velocityLayer;
+  await $.getJSON("wind-gbr.json", function (data) {
+    velocityLayer = L.velocityLayer({
+      displayValues: true,
+      displayOptions: {
+        velocityType: "GBR Wind",
+        position: "bottomleft",
+        emptyString: "No wind data",
+        showCardinal: true,
+      },
+      data: data,
+      maxVelocity: 10,
+    });
+  });
+  return velocityLayer;
+}
+
+// Ocean Current - Great Barrier Reef
+async function getWaterGbrLayer() {
+  let velocityLayer;
+  await $.getJSON("water-gbr.json", function (data) {
+    velocityLayer = L.velocityLayer({
+      displayValues: true,
+      displayOptions: {
+        velocityType: "GBR Water",
+        position: "bottomleft",
+        emptyString: "No water data",
+      },
+      data: data,
+      maxVelocity: 0.6,
+      velocityScale: 0.1, // arbitrary default 0.005
+    });
+  });
+  return velocityLayer;
+}
+
+// Wind - Global
+async function getWindGlobalLayer() {
+  let velocityLayer;
+  await $.getJSON("wind-global.json", function (data) {
+    velocityLayer = L.velocityLayer({
+      displayValues: true,
+      displayOptions: {
+        velocityType: "Global Wind",
+        position: "bottomleft",
+        emptyString: "No wind data",
+      },
+      data: data,
+      maxVelocity: 15,
+    });
+  });
+  return velocityLayer;
+}
+
+// HarbarCenter-Hampton, VA
+async function getHcHamptonLayer() {
+  let velocityLayer;
   await $.getJSON("hampton.json", function (data) {
     velocityLayer = L.velocityLayer({
       displayValues: true,
@@ -62,156 +149,48 @@ async function initDemoMap() {
       opacity: 0.1, //透過率(1が最大)
       showCardinal: true,
     });
-    console.log(" - velocityLayer hampton", velocityLayer);
-    // layerControl.addOverlay(velocityLayer, "HarbarCenter-Hampton, VA");
-    // 初期表示時から風を表示する。
   });
-
-  if (velocityLayer) {
-    // TODO 風が表示できているか確認する。
-    console.log(" - velocityLayer", velocityLayer);
-    var wind = L.layerGroup([velocityLayer]);
-  }
-
-  var baseLayers = {
-    Satellite: Esri_WorldImagery,
-    "Grey Canvas": Esri_DarkGreyCanvas,
-    OSM: Metro_OSM,
-  };
-
-  var overlayMaps = {
-    Cities: cities,
-    Wind: wind,
-  };
-
-  var map = L.map("map", {
-    layers: [Esri_WorldImagery, cities, wind], // デフォルトチェックするレイヤー
-    zoomControl: false, // デフォルト表示のズーム：非表示
-  });
-
-  // 第一引数:baseLayers, 第二引数:overlayMaps
-  var layerControl = L.control.layers(baseLayers, overlayMaps);
-  console.log("- layerControl", layerControl, "- map", map);
-  layerControl.addTo(map);
-  map.setView([37, -76], 10);
-  L.control.zoom({ position: "topright" }).addTo(map);
-
-  return {
-    map: map,
-    layerControl: layerControl,
-  };
+  return velocityLayer;
 }
 
-// demo map
-var mapStuff = initDemoMap();
-var map = mapStuff.map;
-var layerControl = mapStuff.layerControl;
-
-$.getJSON("wind-gbr.json", function (data) {
-  var velocityLayer = L.velocityLayer({
-    displayValues: true,
-    displayOptions: {
-      velocityType: "GBR Wind",
-      position: "bottomleft",
-      emptyString: "No wind data",
-      showCardinal: true,
-    },
-    data: data,
-    maxVelocity: 10,
+// RetreatCenter-Hampton, VA
+async function getRcHamptonLayer() {
+  let velocityLayer;
+  await $.getJSON("retreat_center.json", function (data) {
+    velocityLayer = L.velocityLayer({
+      displayValues: true,
+      displayOptions: {
+        velocityType: "Global Wind",
+        position: "bottomleft",
+        emptyString: "No wind data",
+      },
+      data: data,
+      minVelocity: 0,
+      maxVelocity: 20,
+      velocityScale: 0.001,
+      opacity: 0.1, //透過率(1が最大)
+    });
   });
+  return velocityLayer;
+}
 
-  layerControl.addOverlay(velocityLayer, "Wind - Great Barrier Reef");
-});
-
-// $.getJSON("./water-gbr.json", function (data) {
-$.getJSON("water-gbr.json", function (data) {
-  var velocityLayer = L.velocityLayer({
-    displayValues: true,
-    displayOptions: {
-      velocityType: "GBR Water",
-      position: "bottomleft",
-      emptyString: "No water data",
-    },
-    data: data,
-    maxVelocity: 0.6,
-    velocityScale: 0.1, // arbitrary default 0.005
+// Hampton-AD4, VA
+async function getLeatestLayer() {
+  let velocityLayer;
+  await $.getJSON("leatest.json", function (data) {
+    velocityLayer = L.velocityLayer({
+      displayValues: true,
+      displayOptions: {
+        velocityType: "Global Wind",
+        position: "bottomleft",
+        emptyString: "No wind data",
+      },
+      data: data,
+      minVelocity: 0,
+      maxVelocity: 20,
+      velocityScale: 0.001,
+      opacity: 0.1, //透過率(1が最大)
+    });
   });
-
-  layerControl.addOverlay(velocityLayer, "Ocean Current - Great Barrier Reef");
-});
-
-// $.getJSON("./wind-global.json", function (data) {
-$.getJSON("wind-global.json", function (data) {
-  var velocityLayer = L.velocityLayer({
-    displayValues: true,
-    displayOptions: {
-      velocityType: "Global Wind",
-      position: "bottomleft",
-      emptyString: "No wind data",
-    },
-    data: data,
-    maxVelocity: 15,
-  });
-
-  layerControl.addOverlay(velocityLayer, "Wind - Global");
-});
-
-// $.getJSON("./hampton.json", function (data) {
-$.getJSON("hampton.json", function (data) {
-  var velocityLayer = L.velocityLayer({
-    displayValues: true,
-    displayOptions: {
-      velocityType: "Global Wind",
-      position: "bottomleft",
-      emptyString: "No wind data",
-    },
-    data: data,
-    minVelocity: 5,
-    maxVelocity: 28,
-    velocityScale: 0.001,
-    opacity: 0.1, //透過率(1が最大)
-    showCardinal: true,
-  });
-  console.log(" - velocityLayer hampton", velocityLayer);
-  layerControl.addOverlay(velocityLayer, "HarbarCenter-Hampton, VA");
-  // 初期表示時から風を表示する。
-  // velocityLayer.onAdd(map);
-});
-
-// $.getJSON("./retreat_center.json", function (data) {
-$.getJSON("retreat_center.json", function (data) {
-  var velocityLayer = L.velocityLayer({
-    displayValues: true,
-    displayOptions: {
-      velocityType: "Global Wind",
-      position: "bottomleft",
-      emptyString: "No wind data",
-    },
-    data: data,
-    minVelocity: 0,
-    maxVelocity: 20,
-    velocityScale: 0.001,
-    opacity: 0.1, //透過率(1が最大)
-  });
-
-  layerControl.addOverlay(velocityLayer, "RetreatCenter-Hampton, VA");
-});
-
-// $.getJSON("./leatest.json", function (data) {
-$.getJSON("leatest.json", function (data) {
-  var velocityLayer = L.velocityLayer({
-    displayValues: true,
-    displayOptions: {
-      velocityType: "Global Wind",
-      position: "bottomleft",
-      emptyString: "No wind data",
-    },
-    data: data,
-    minVelocity: 0,
-    maxVelocity: 20,
-    velocityScale: 0.001,
-    opacity: 0.1, //透過率(1が最大)
-  });
-
-  layerControl.addOverlay(velocityLayer, "Hampton-AD4, VA");
-});
+  return velocityLayer;
+}
